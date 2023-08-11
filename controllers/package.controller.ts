@@ -1,14 +1,9 @@
 import {type Request, type Response} from 'express';
-import {Package} from '../models/package';
-import {Price} from '../models/price';
+import PackageService from '../services/package.service';
 
 export default {
 	async getAll(_: Request, response: Response) {
-		const packages = await Package.findAll({
-			include: [
-				{model: Price, as: 'prices'},
-			],
-		});
+		const packages = await PackageService.getAll();
 
 		response.send({packages});
 	},

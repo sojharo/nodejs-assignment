@@ -13,7 +13,7 @@ class Price extends Model<InferAttributes<Price>, InferCreationAttributes<Price>
 
 Price.init({
 	id: {
-		type: DataTypes.INTEGER.UNSIGNED,
+		type: DataTypes.INTEGER,
 		autoIncrement: true,
 		primaryKey: true,
 	},
