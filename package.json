@@ -9,7 +9,8 @@
   "scripts": {
     "test": "jest --runInBand",
     "start": "ts-node index.ts",
-    "dev": "ts-node-dev --respawn --transpile-only index.ts"
+    "dev": "ts-node-dev --respawn --transpile-only index.ts",
+    "lint": "eslint . --fix"
   },
   "author": "",
   "license": "ISC",
