@@ -7,6 +7,7 @@ export default {
         try {
             const packages = await PackageService.getAll();
 
+            // TODO: make it paginated in future
             response.json({ packages });
         } catch (err) {
             logError('Error fetching packages:', { error: err });

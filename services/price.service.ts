@@ -36,7 +36,7 @@ export default {
         const prices = await Price.findAll({
             where: {
                 packageId: pack.id,
-                ...(municipalityId && { municipalityId }),
+                ...(municipalityId !== undefined ? { municipalityId } : {}),
                 createdAt: { [Op.gte]: startDate, [Op.lt]: endDate },
             },
             include: [
@@ -49,15 +49,13 @@ export default {
             order: [['createdAt', 'ASC']],
         });
 
-        const result: Record<string, number[]> = {};
-
-        for (const p of prices) {
+        const result = prices.reduce<Record<string, number[]>>((acc, p) => {
             const key = p.municipality?.name ?? 'global';
-            if (!result[key]) {
-                result[key] = [];
-            }
-            result[key].push(p.priceCents);
-        }
+            return {
+                ...acc,
+                [key]: [...(acc[key] ?? []), p.priceCents],
+            };
+        }, {});
 
         return result;
     },

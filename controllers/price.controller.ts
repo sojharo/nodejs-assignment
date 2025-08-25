@@ -23,6 +23,7 @@ export default {
                 municipality
             );
 
+            // TODO: make it paginated in future
             return res.json({ history });
         } catch (err) {
             logError('Error fetching price history:', { error: err });
