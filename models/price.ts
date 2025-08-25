@@ -15,10 +15,11 @@ class Price extends Model<
 > {
     declare id: CreationOptional<number>;
     declare priceCents: number;
+
     declare packageId: ForeignKey<Package['id']>;
+    declare municipalityId: CreationOptional<ForeignKey<Package['id']>>;
 
     declare createdAt: CreationOptional<Date>;
-    declare updatedAt: CreationOptional<Date>;
 }
 
 Price.init(
@@ -31,12 +32,25 @@ Price.init(
         priceCents: {
             type: DataTypes.INTEGER,
             allowNull: false,
+            validate: {
+                min: 0,
+                isInt: true,
+            },
+        },
+        packageId: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+        },
+        municipalityId: {
+            type: DataTypes.INTEGER,
+            allowNull: true, // for global package price
         },
         createdAt: DataTypes.DATE,
-        updatedAt: DataTypes.DATE,
     },
     {
         sequelize: sequelizeConnection,
+        tableName: 'prices',
+        updatedAt: false, // immutable log table, no updates
     }
 );
 

@@ -9,6 +9,7 @@ import {
 } from 'sequelize';
 import { sequelizeConnection } from '../db/config';
 import { Price } from './price';
+import { Municipality } from './municipality';
 
 class Package extends Model<
     InferAttributes<Package>,
@@ -16,18 +17,22 @@ class Package extends Model<
 > {
     declare static associations: {
         prices: Association<Package, Price>;
+        municipalities: Association<Package, Municipality>;
     };
 
     declare id: CreationOptional<number>;
     declare name: string;
-    declare priceCents: number;
+    declare priceCents: number; // global current price for package
+
     declare prices?: NonAttribute<Price[]>;
+    // To see in which municipalities we have specific price instead of global package price
+    declare municipalities?: NonAttribute<Municipality[]>;
 }
 
 Package.init(
     {
         id: {
-            type: DataTypes.INTEGER.UNSIGNED,
+            type: DataTypes.INTEGER,
             autoIncrement: true,
             primaryKey: true,
         },
@@ -39,18 +44,16 @@ Package.init(
         priceCents: {
             type: DataTypes.INTEGER,
             allowNull: false,
-            defaultValue: 0,
+            validate: {
+                min: 0,
+                isInt: true,
+            },
         },
     },
     {
         sequelize: sequelizeConnection,
+        tableName: 'packages',
     }
 );
-
-Package.hasMany(Price, {
-    sourceKey: 'id',
-    foreignKey: 'packageId',
-    as: 'prices',
-});
 
 export { Package };
