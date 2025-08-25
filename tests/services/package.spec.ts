@@ -1,4 +1,5 @@
 import { sequelizeConnection } from '../../db/config';
+import { Municipality } from '../../models';
 import { Package } from '../../models/package';
 import { Price } from '../../models/price';
 import PackageService from '../../services/package.service';
@@ -47,18 +48,53 @@ describe('PackageService', () => {
         expect(priceHistory[0].priceCents).toBe(100_00);
     });
 
-    // This tests cover feature request 1. Feel free to add more tests or change
-    // the existing one.
     it('Supports adding a price for a specific municipality', async () => {
         const pack = await Package.create({
             name: 'Dunderhonung',
             priceCents: 0,
         });
 
+        await Municipality.create({ name: 'Göteborg' });
+
         await packageService.updatePackagePrice(pack, 200_00, 'Göteborg');
 
-        const response = await packageService.priceFor('Göteborg');
+        const response = await packageService.priceFor(pack.name, 'Göteborg');
 
         expect(response).toBe(200_00);
+    });
+
+    it('Does not create duplicate history entry when updating to the same price', async () => {
+        const pack = await Package.create({
+            name: 'Dunderhonung',
+            priceCents: 200_00,
+        });
+
+        await packageService.updatePackagePrice(pack, 200_00);
+
+        const priceHistory = await Price.findAll({
+            where: { packageId: pack.id },
+        });
+        expect(priceHistory.length).toBe(0);
+    });
+
+    it('Throws an error when updating price for a non-existent municipality', async () => {
+        const pack = await Package.create({
+            name: 'Dunderhonung',
+            priceCents: 0,
+        });
+
+        await expect(
+            packageService.updatePackagePrice(pack, 200_00, 'Karachi')
+        ).rejects.toThrow();
+    });
+
+    it('Falls back to global price if municipality price is not set', async () => {
+        const pack = await Package.create({
+            name: 'Dunderhonung',
+            priceCents: 300_00,
+        });
+
+        const response = await packageService.priceFor(pack.name, 'Stockholm');
+        expect(response).toBe(300_00);
     });
 });
