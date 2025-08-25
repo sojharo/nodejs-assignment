@@ -38,14 +38,20 @@ describe('PackageService', () => {
             priceCents: 100_00,
         });
 
+        await Price.create({
+            packageId: pack.id,
+            priceCents: 100_00,
+        });
+
         await packageService.updatePackagePrice(pack, 200_00);
 
         const priceHistory = await Price.findAll({
             where: { packageId: pack.id },
         });
 
-        expect(priceHistory.length).toBe(1);
+        expect(priceHistory.length).toBe(2);
         expect(priceHistory[0].priceCents).toBe(100_00);
+        expect(priceHistory[1].priceCents).toBe(200_00);
     });
 
     it('Supports adding a price for a specific municipality', async () => {

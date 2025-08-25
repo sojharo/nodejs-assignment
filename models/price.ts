@@ -5,9 +5,11 @@ import {
     type InferAttributes,
     type InferCreationAttributes,
     Model,
+    NonAttribute,
 } from 'sequelize';
 import { sequelizeConnection } from '../db/config';
 import { type Package } from './package';
+import { Municipality } from './municipality';
 
 class Price extends Model<
     InferAttributes<Price>,
@@ -18,6 +20,9 @@ class Price extends Model<
 
     declare packageId: ForeignKey<Package['id']>;
     declare municipalityId: CreationOptional<ForeignKey<Package['id']>>;
+
+    declare package?: NonAttribute<Package>;
+    declare municipality?: NonAttribute<Municipality>;
 
     declare createdAt: CreationOptional<Date>;
 }

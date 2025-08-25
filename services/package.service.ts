@@ -13,9 +13,12 @@ export default {
     async updatePackagePrice(
         pack: Package,
         newPriceCents: number,
-        municipalityName?: string
+        municipalityName?: string,
+        date?: Date
     ) {
         return await sequelizeConnection.transaction(async (t) => {
+            const priceDate = date ?? new Date();
+
             if (!municipalityName) {
                 // Global price update
 
@@ -26,7 +29,8 @@ export default {
                 await Price.create(
                     {
                         packageId: pack.id,
-                        priceCents: pack.priceCents,
+                        priceCents: newPriceCents,
+                        createdAt: priceDate,
                     },
                     { transaction: t }
                 );
@@ -61,6 +65,17 @@ export default {
                     },
                     { transaction: t }
                 );
+
+                await Price.create(
+                    {
+                        packageId: pack.id,
+                        municipalityId: municipality.id,
+                        priceCents: newPriceCents,
+                        createdAt: priceDate,
+                    },
+                    { transaction: t }
+                );
+
                 return pkgMun;
             }
 
@@ -72,7 +87,8 @@ export default {
                 {
                     packageId: pack.id,
                     municipalityId: municipality.id,
-                    priceCents: pkgMun.priceCents,
+                    priceCents: newPriceCents,
+                    createdAt: priceDate,
                 },
                 { transaction: t }
             );
