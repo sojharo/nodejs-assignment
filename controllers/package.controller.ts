@@ -1,10 +1,16 @@
 import { type Request, type Response } from 'express';
 import PackageService from '../services/package.service';
+import { logError } from '../utils/logger';
 
 export default {
     async getAll(_: Request, response: Response) {
-        const packages = await PackageService.getAll();
+        try {
+            const packages = await PackageService.getAll();
 
-        response.send({ packages });
+            response.json({ packages });
+        } catch (err) {
+            logError('Error fetching packages:', { error: err });
+            response.status(500).json({ error: 'Internal server error' });
+        }
     },
 };
